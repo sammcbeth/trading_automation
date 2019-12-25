@@ -1,0 +1,11 @@
+__pycache__/
+.Python
+lib/
+lib64/
+var/
+.venv
+secrets.py
+Lib/
+Scripts/
+pyvenv.cfg
+.vscode
