@@ -2,7 +2,8 @@ import alpaca_trade_api as tradeapi
 from secrets import API_KEY, API_SECRET, APCA_API_BASE_URL
 from market_open import market_open
 from submit_order import submit_order
-from trading_algos.momentum import momentum
+from get_market_data import get_last_price
+from momentum import momentum
 import threading
 import time
 import datetime
@@ -15,7 +16,7 @@ class TradingAlgo:
     def __init__(self):
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
 
-    def run(self, algo):
+    def run(self, algo, tickers):
         # First, cancel any existing orders so they don't impact our buying power.
         orders = self.alpaca.list_orders(status="open")
         for order in orders:
@@ -25,7 +26,9 @@ class TradingAlgo:
         print("Waiting for market to open...")
         market_open(self)
         print("Market opened.")
-
+        tracked_ticker = tickers[0]
+        tracked_price = get_last_price(tracked_ticker)
+        tracked_data = {'tracked_ticker':tracked_ticker, 'tracked_price':tracked_price}
         # Rebalance the portfolio every minute, making necessary trades.
         while True:
 
@@ -42,8 +45,7 @@ class TradingAlgo:
                 positions = self.alpaca.list_positions()
                 for position in positions:
                     qty = abs(int(float(position.qty)))
-                    respSO = []
-                    submit_order(self,qty,position.symbol,orderSide,respSO)
+                    submit_order(qty,position.symbol,side='sell')
 
                 # Run script again after market close for next trading day.
                 print("Sleeping until market close (15 minutes).")
@@ -51,8 +53,8 @@ class TradingAlgo:
                 break
             else:
                 # Rebalance the portfolio.
-                algo()
+                tracked_data = algo(tracked_data)
                 time.sleep(10)
 
 ta = TradingAlgo()
-ta.run(momentum)
+ta.run(momentum, ['OILU','OILD'])

@@ -1,12 +1,10 @@
-def submit_order(self, qty, stock, side, resp):
+from main import ta as account
+
+def submit_order(qty, stock, side):
     if(qty > 0):
       try:
-        self.alpaca.submit_order(stock, qty, side, "market", "day")
-        print(f"Market order of | {str(qty)} {stock} {side} | completed.")
-        resp.append(True)
+        return account.alpaca.submit_order(stock, qty, side, "market", "day")
       except:
         print("Order of | " + str(qty) + " " + stock + " " + side + " | did not go through.")
-        resp.append(False)
     else:
-      print("Quantity is 0, order of | " + str(qty) + " " + stock + " " + side + " | not completed.")
-      resp.append(True)
+      print(f"Market order of | {str(qty)} {stock} {side} | completed.")
