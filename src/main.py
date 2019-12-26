@@ -2,7 +2,7 @@ import alpaca_trade_api as tradeapi
 from secrets import API_KEY, API_SECRET, APCA_API_BASE_URL
 from market_open import market_open
 from submit_order import submit_order
-from make_trade_decisions import make_trade_decisions
+from trading_algos.momentum import momentum
 import threading
 import time
 import datetime
@@ -15,7 +15,7 @@ class TradingAlgo:
     def __init__(self):
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
 
-    def run(self):
+    def run(self, algo):
         # First, cancel any existing orders so they don't impact our buying power.
         orders = self.alpaca.list_orders(status="open")
         for order in orders:
@@ -47,13 +47,12 @@ class TradingAlgo:
 
                 # Run script again after market close for next trading day.
                 print("Sleeping until market close (15 minutes).")
-                time.sleep(60 * 15)
+                time.sleep(60 * 16)
+                break
             else:
                 # Rebalance the portfolio.
-                make_trade_choice = threading.Thread(target=make_trade_decisions)
-                make_trade_choice.start()
-                make_trade_choice.join()
-                time.sleep(60)
+                algo()
+                time.sleep(10)
 
 ta = TradingAlgo()
-ta.run()
+ta.run(momentum)
