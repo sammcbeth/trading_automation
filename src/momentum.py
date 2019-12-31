@@ -4,6 +4,7 @@ import time
 import datetime
 import requests as req
 import json
+from random import choice
 from secrets import API_KEY, API_SECRET, APCA_API_BASE_URL
 
 
@@ -11,19 +12,9 @@ OILD = 'OILD'
 OILU = 'OILU'
 
 
-class LongShort:
+class Momentum:
     def __init__(self):
         self.alpaca = tradeapi.REST(API_KEY, API_SECRET, APCA_API_BASE_URL, 'v2')
-
-        self.long = []
-        self.short = []
-        self.qShort = None
-        self.qLong = None
-        self.adjustedQLong = None
-        self.adjustedQShort = None
-        self.blacklist = set()
-        self.longAmount = 0
-        self.shortAmount = 0
         self.timeToClose = None
 
     def run(self):
@@ -35,7 +26,7 @@ class LongShort:
         print("Waiting for market to open...")
         self.awaitMarketOpen()
         print("Market opened.")
-        tracked_ticker = OILU
+        tracked_ticker = choice([OILU, OILD])
         tracked_price = get_last_price(tracked_ticker)
         tracked_data = {'tracked_ticker':tracked_ticker, 'tracked_price':tracked_price}
         # Rebalance the portfolio every minute, making necessary trades.
@@ -82,7 +73,7 @@ class LongShort:
         if not positions:
             return self.look_for_buy(tracked_data)
         else:
-            return self.look_for_sell(positions[0]['avg_entry_price'], positions[0]['symbol'], positions[0]['qty'])
+            return self.look_for_sell(positions[0]['avg_entry_price'], positions[0]['symbol'], positions[0]['qty'], tracked_data)
         
     def look_for_buy(self, tracked_data):
         """ Based upon the assumption that the account does not currently
@@ -153,6 +144,6 @@ class LongShort:
 
 
  
-# Run the LongShort class
-ls = LongShort()
-ls.run()
+# Run the Momentum class
+TA = Momentum()
+TA.run()
