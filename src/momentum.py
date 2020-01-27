@@ -56,7 +56,7 @@ class Momentum:
             else:
                 # Rebalance the portfolio.
                 tracked_data = self.algo(tracked_data)
-                time.sleep(30)
+                time.sleep(60)
 
     # Wait for market to open.
     def awaitMarketOpen(self):
@@ -156,10 +156,15 @@ class Momentum:
         try:
             data = req.get(baseUrl).text
             data = json.loads(data)
-            return data['last']['price']
+            if data['last']['price']:
+                return data['last']['price']
+            else:
+                print('Failed to fetch price data. Sleeping and trying again')
+                time.sleep(60)
+                self.get_last_price(ticker)
         except:
             print('Failed to fetch price data. Sleeping and trying again')
-            time.sleep(30)
+            time.sleep(60)
             self.get_last_price(ticker)
 
 
