@@ -8,8 +8,8 @@ from random import choice
 from secrets import API_KEY, API_SECRET, APCA_API_BASE_URL
 import sys
 
-OILD = 'OILD'
-OILU = 'OILU'
+OILD = 'SCO'
+OILU = 'UCO'
 buy = 'buy'
 sell = 'sell'
 
