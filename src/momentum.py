@@ -150,17 +150,16 @@ class Momentum:
 
     def get_last_price(self, ticker):
         base_url = f'https://api.polygon.io/v1/last/stocks/{ticker.upper()}?apiKey={API_KEY}'
+        data = self.alpaca.get_last_trade(ticker)
         try:
-            data = req.get(base_url).text
-            data = json.loads(data)
-            if data['last']['price']:
-                return data['last']['price']
+            if data.price:
+                return data.price
             else:
                 print('Failed to fetch price data. Sleeping and trying again')
                 time.sleep(60)
                 self.get_last_price(ticker)
-        except:
-            print('Failed to fetch price data. Sleeping and trying again')
+        except BaseException as e:
+            print(f'Failed to fetch price data. Sleeping and trying again {e}')
             time.sleep(60)
             self.get_last_price(ticker)
 
